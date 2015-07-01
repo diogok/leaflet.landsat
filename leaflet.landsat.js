@@ -1,12 +1,18 @@
 
 L.landsat = function() {
-  return  L.esri.imageMapLayer(
+  var layer = L.esri.imageMapLayer(
       'http://landsatlook.usgs.gov/arcgis/rest/services/LandsatLook/ImageServer'
       ,{
         timeField: 'acquisitionDate',
         attribution: 'NASA Landsat'
       }
     );
+  
+  layer.setTime = function(precise,from,to) {
+    layer.setTimeRange(from,to);
+  };
+
+  return layer;
 };
 
 L.modis = function() {
@@ -30,8 +36,8 @@ L.modis = function() {
     attribution: "NASA MODIS"
   });
                                                                                                                          
-  layer.setTimeRange = function(from,to) {
-    var time = from.toISOString().slice(0,10);
+  layer.setTime = function(precise,from,to) {
+    var time = precise.toISOString().slice(0,10);
     var template = "//map1{s}.vis.earthdata.nasa.gov/wmts-webmerc/" 
                   + "{layer}/default/"+time+"/{tileMatrixSet}/{z}/{y}/{x}.jpg";
     layer.setUrl(template);
@@ -54,11 +60,10 @@ L.control.Landsat = L.Control.extend({
 
       console.log(this.options);
       if(this.options.layer != null) {
-        this.options.layer.setTimeRange(times[0],times[1]);
+        this.options.layer.setTime(times[0],times[1],times[2]);
       } else if(this.options.layers != null) {
         for(var i=0;i<this.options.layers.length;i++) {
-          console.log(this.options.layers[i]);
-          this.options.layers[i].setTimeRange(times[0],times[1]);
+          this.options.layers[i].setTime(times[0],times[1],times[2]);
         }
       }
     },
@@ -73,10 +78,11 @@ L.control.Landsat = L.Control.extend({
       var year_sel  = this.year_selector;
       var year      = year_sel.options[year_sel.selectedIndex].innerHTML;
 
-      var to       = year+"-"+month+"-30";
       var from     = year+"-"+month+"-01";
+      var to       = year+"-"+month+"-30";
+      var precise  = year+"-"+month+"-"+day;
 
-      return [new Date( from ),new Date( to )];
+      return [new Date( precise ),new Date( from ),new Date( to )];
     },
 
     onAdd: function(map) {
