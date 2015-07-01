@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaflet with nasa Landsat and MODIS timeseries base layer</title>
+
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <script src="//cdn.jsdelivr.net/leaflet.esri/latest/esri-leaflet.js"></script>
+
+  <script src="leaflet.landsat.js" type="text/javascript"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+    .leaflet-control-landsat {
+      background-color: #fff;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map">
+  </div>
+  
+  <script type="text/javascript">
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    var marker = L.marker([51.5, -0.09]).addTo(map);
+
+    var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
+    var landsat = L.landsat();
+    var modis = L.modis();
+
+    var base = {
+      'OpenStreeMap': osm,
+      'Landsat': landsat,
+      'MODIS': modis
+    };
+
+    var layers={};
+
+    L.control.layers(base,layers,{collapsed:false}).addTo(map);
+
+    L.control.landsat({layer:landsat}).addTo(map);
+    L.control.landsat({layer:modis,title: 'MODIS'}).addTo(map);
+    //L.control.landsat({layers:[ modis,landsat ],title: 'Control both'}).addTo(map);
+  </script>
+</body>
+</html>
